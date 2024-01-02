@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Monopoly</title>
+    <script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+</head>
+<body>
+    <button onclick="load()" id="volgende" style="position: absolute; top: 890px">volgende stap</button>
+    <img src="images/monopoly_bord.png" style="position: absolute; left: 0px; top: 0px" alt="bord">
+    <img src="images/pionnen/kat.png" alt="kat" id="kat" style="position: absolute; left: 0px; top: 717px">
+    <img src="images/pionnen/hoed.png" alt="hoed" id="hoed" style="position: absolute; left: 0px; top: 717px">
+    <img src="images/pionnen/eend.png" alt="hoed" id="eend" style="position: absolute; left: 0px; top: 717px">
+    <canvas width="1000" height="1000" id="canvas" style="position:absolute;z-index:3;pointer-events:none;"></canvas>
+    <div id="chartContainer" style="position: absolute; left: 850px; height: 100%; width: 50%;"></div>
+    <div id="textKansFons" style="position: absolute; left: 120px; top: 860px; width: 600px; font: 15px Arial"></div>
+    <script>
+        const button = document.getElementById("volgende");
+        const kat = document.getElementById("kat");
+        const hoed = document.getElementById("hoed");
+        const eend = document.getElementById("eend");
+        const textKansFons = document.getElementById("textKansFons");
+        const canvasTekenen = document.getElementById("canvas").getContext("2d");
+        canvasTekenen.font = "30px Arial"
+        var geldSpeler1 = [1500];
+        var geldSpeler2 = [1500];
+        var geldSpeler3 = [1500];
+        var spelId = 0;
+        maakGrafiek(geldSpeler1, geldSpeler2, geldSpeler3)
+
+        function maakGrafiek(lijstGeld1, lijstGeld2, lijstGeld3) {
+            datapoints1 = [];
+            datapoints2 = [];
+            datapoints3 = [];
+            for (let i = 0; i < lijstGeld1.length; i++) {
+                datapoints1.push({x: i, y: lijstGeld1.at(i)});
+                datapoints2.push({x: i, y: lijstGeld2.at(i)});
+                datapoints3.push({x: i, y: lijstGeld3.at(i)})
+            }
+
+            var chart = new CanvasJS.Chart("chartContainer", {
+                theme: "light2",
+                title:{
+                    text: "geld"
+                },
+                toolTip:{
+                    shared:true
+                },
+                legend:{
+                    cursor:"pointer",
+                    verticalAlign: "bottom",
+                    horizontalAlign: "left",
+                    dockInsidePlotArea: true
+                },
+                data: [{
+                    type: "line",
+                    showInLegend: true,
+                    name: "geld speler1",
+                    markerType: "square",
+                    color: "#fe00cc",
+                    dataPoints: datapoints1
+                },
+                    {
+                        type: "line",
+                        showInLegend: true,
+                        name: "geld speler2",
+                        markerType: "circle",
+                        color: "#0000ff",
+                        dataPoints: datapoints2
+                    },
+                    {
+                        type: "line",
+                        showInLegend: true,
+                        name: "geld speler3",
+                        markerType: "triangle",
+                        color: "#00eafe",
+                        dataPoints: datapoints3
+                    }]
+            });
+            chart.render();
+        }
+
+        function load() {
+            button.disabled = true;
+            fetch('/'+spelId+'/data')
+                .then(response => response.json())
+                .then(setPlace)
+                .then(json => button.disabled = false);
+        }
+
+        function setPlace(json) {
+            spelId = json.id;
+            geldSpeler1.push(json.geldSpeler1);
+            geldSpeler2.push(json.geldSpeler2);
+            geldSpeler3.push(json.geldSpeler3);
+            pos(kat, json.posSpeler1);
+            pos(hoed, json.posSpeler2);
+            pos(eend, json.posSpeler3);
+            canvasTekenen.clearRect(0, 0, 1000, 1000);
+            maakGrafiek(geldSpeler1, geldSpeler2, geldSpeler3);
+            canvasTekenen.fillStyle = "#fe00cc";
+            straten(json.kaartBezittenSpeler1);
+            canvasTekenen.fillStyle = "#0000ff";
+            straten(json.kaartBezittenSpeler2);
+            canvasTekenen.fillStyle = "#00eafe";
+            straten(json.kaartBezittenSpeler3);
+            huisjes(json.huisjesSpeler1);
+            huisjes(json.huisjesSpeler2);
+            huisjes(json.huisjesSpeler3);
+            textKansFons.innerText = json.textKansFons;
+        }
+
+        function pos(figuur, pos) {
+            if (0 <= pos && 10 >= pos) {
+                figuur.style.left = "0px";
+                figuur.style.top = Math.round(850-((pos*65.3)+131)).toString()+"px";
+            } else if (20 <= pos && 30 >= pos) {
+                figuur.style.left = "719px";
+                figuur.style.top = Math.round(((pos-19)*65.3)).toString()+"px";
+            } else if (10 <= pos && 20 >= pos) {
+                figuur.style.left = Math.round(((pos-9)*65.3)).toString()+"px";
+                figuur.style.top = "0px";
+            } else {
+                figuur.style.left = Math.round(850-(((pos-30)*65.3)+131)).toString()+"px";
+                figuur.style.top = "719px";
+            }
+        }
+
+        function straten(possen) {
+            for (let pos of possen) {
+                let x1;
+                let y1;
+                let x2;
+                let y2;
+                if (0 <= pos && 10 >= pos) {
+                    x1 = 120;
+                    y1 = Math.round(850-((pos*65.3)+140));
+                    x2 = x1 + 25;
+                    y2 = y1 + 65;
+                } else if (20 <= pos && 30 >= pos) {
+                    x1 = 710;
+                    y1 = Math.round(((pos-19)*65.3)-10);
+                    x2 = x1 - 25;
+                    y2 = y1 + 65;
+                } else if (10 <= pos && 20 >= pos) {
+                    x1 = Math.round(((pos-9)*65.3)-10);
+                    y1 = 123;
+                    x2 = x1 + 65;
+                    y2 = y1 + 25;
+                } else {
+                    x1 = Math.round(850-(((pos-30)*65.3)+142));
+                    y1 = 713;
+                    x2 = x1 + 65;
+                    y2 = y1 - 25;
+                }
+                canvasTekenen.fillRect(x1, y1, x2-x1, y2-y1);
+            }
+        }
+
+        function huisjes(huisjes) {
+            canvasTekenen.fillStyle = "#000000";
+            for (let huisje of huisjes) {
+                let x;
+                let y;
+                let hoeveel = huisje[1];
+                let pos = huisje[0];
+                if (0 <= pos && 10 >= pos) {
+                    x = 100;
+                    y = Math.round(850-((pos*65.3)+110));
+                } else if (20 <= pos && 30 >= pos) {
+                    x = 715;
+                    y = Math.round(((pos-19)*65.3)+30);
+                } else if (10 <= pos && 20 >= pos) {
+                    x = Math.round(((pos-9)*65.3));
+                    y = 120;
+                } else {
+                    x = Math.round(850-(((pos-30)*65.3)+130));
+                    y = 733;
+                }
+                canvasTekenen.fillText(hoeveel, x, y)
+            }
+        }
+    </script>
+</body>
+</html>

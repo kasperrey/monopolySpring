@@ -1,0 +1,23 @@
+{"ga naar": [
+    {"pos": 0, "text": "Ga verder naar \"Start\"."}
+  ],
+"gevangenis": [
+    {"type": "uit", "text": "Kom gratis uit de gevangenis.\n Deze kaart kan worden bewaard totdat deze nodig is."},
+    {"type": "in", "text": "Naar de gevangenis gaan.\n Ga direct naar de gevangenis.\n Ga niet voorbij Start, verzamel geen $200"}
+  ],
+"geld": [
+    {"type": "krijgenBank", "geld": 200, "text": "Bankfout in uw voordeel.\n Verzamel $ 200."},
+    {"type": "betaalBank", "geld": 50, "text": "Doktershonoraria.\n Betaal $50."},
+    {"type": "krijgenBank", "geld": 50, "text": "Uit de verkoop van aandelen krijgt u $50."},
+    {"type": "krijgSpelers", "geld": 50, "text": "Grand Opera Night.\n Verzamel $50 van elke speler voor het openen van nachtstoelen."},
+    {"type": "krijgenBank", "geld": 100, "text": "Holiday Fonds vervalt.\n Ontvang $100."},
+    {"type": "krijgenBank", "geld": 20, "text": "Teruggave inkomstenbelasting.\n Verzamel $20."},
+    {"type": "krijgSpelers", "geld": 10, "text": "Het is jouw verjaardag.\n Verzamel $10 van elke speler."},
+    {"type": "krijgenBank", "geld": 100, "text": "Levensverzekering wordt ouder.\n Ontvang $100"},
+    {"type": "betaalBank", "geld": 50, "text": "Ziekenhuiskosten.\n Betaal $50."},
+    {"type": "betaalBank", "geld": 50, "text": "Schoolgeld.\n Betaal $50."},
+    {"type": "krijgenBank", "geld": 25, "text": "Ontvang $25 advieskosten."},
+    {"type": "betaalHuis", "geld": 40, "text": "U wordt beoordeeld op straatreparaties: Betaal $40 per huis en $115 per hotel dat u bezit."},
+    {"type": "krijgenBank", "geld": 10, "text": "Je hebt de tweede prijs gewonnen in een schoonheidswedstrijd.\n Verzamel $10."},
+    {"type": "krijgenBank", "geld": 100, "text": "Je erft $100."}
+]}
