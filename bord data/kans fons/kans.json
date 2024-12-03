@@ -3,17 +3,17 @@
     {"plekken": [24], "type": "kaart", "terug": 0, "text": "Ga naar Illinois Avenue.\n Als je Start passeert, verzamel je $200."},
     {"plekken": [11], "type": "kaart", "terug": 0, "text": "Ga verder naar St. Charles Place.\n Als je Start passeert, verzamel dan $200."},
     {"plekken": [12, 28], "type": "speciaal", "terug": 0, "text": "Ga naar het dichtstbijzijnde hulpprogramma.\n Als u het niet in uw bezit heeft, kunt u het bij de bank kopen.\n Als je eigenaar bent, gooi je de dobbelstenen en betaal je de eigenaar in totaal 10 keer het gegooide bedrag."},
-    {"plekken": [5, 15, 25, 35], "type": "treinDicht", "terug": 0, "text": "Ga naar de dichtstbijzijnde spoorweg.\n Als u het niet in uw bezit heeft, kunt u het bij de bank kopen.\n Als u eigenaar bent, betaalt u de eigenaar tweemaal de huur waar hij anders recht op heeft.\n Als Railroad geen eigendom is, kunt u het bij de bank kopen."},
+    {"plekken": [5, 15, 25, 35], "type": "treinDicht", "terug": 0, "text": "Ga naar de dichtstbijzijnde spoorweg.\n Als u het niet in uw bezit heeft, kunt u het bij de bank kopen.\n Als u geen eigenaar bent, betaalt u de eigenaar tweemaal de huur waar hij anders recht op heeft.\n Als Railroad geen eigendom is, kunt u het bij de bank kopen."},
     {"plekken": [5], "type": "trein", "terug": 0, "text": "Maak een uitstapje naar de Reading Railroad."},
     {"plekken": [39], "type": "kaart", "terug": 0, "text": "Maak een wandeling over de Boardwalk.\n Ga naar Boardwalk."}
   ],
 "gevangenis": [
     {"type": "uit", "text": "Verlaat de gevangenis gratis.\n Deze kaart kan worden bewaard totdat hij nodig is, of worden verhandeld/verkocht."},
-    {"type": "in", "text": "Naar de gevangenis gaan.\n Ga direct naar de gevangenis.\n Ga niet voorbij GO, verzamel geen $200."}
+    {"type": "in", "text": "Naar de gevangenis gaan.\n Ga direct naar de gevangenis.\n Ga niet voorbij Start, verzamel geen $200."}
   ],
 "geld": [
     {"type": "krijgenBank", "geld": 50, "text": "De bank betaalt u een dividend van $50."},
-    {"type": "betaalHuis", "geld": 25, "text": "Voer algemene reparaties uit aan al uw eigendommen: betaal voor elk huis $ 25 en voor elk hotel $ 100."},
+    {"type": "betaalHuis", "geld": 25, "text": "Voer algemene reparaties uit aan al uw eigendommen: betaal voor elk huis $25 en voor elk hotel $100."},
     {"type": "betaalBank", "geld": 15, "text": "Betaal de armenbelasting van $ 15."},
     {"type": "betaalSpelers", "geld": 50, "text": "U bent verkozen tot voorzitter van het bestuur.\n Betaal elke speler $50."},
     {"type": "krijgenBank", "geld": 150, "text": "Uw bouwlening vervalt.\n Ontvang $150."}

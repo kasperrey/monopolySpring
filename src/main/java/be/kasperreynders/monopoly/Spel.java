@@ -3,10 +3,7 @@ package be.kasperreynders.monopoly;
 import be.kasperreynders.monopoly.spel.*;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Random;
 
 public class Spel {
@@ -20,6 +17,7 @@ public class Spel {
     public final int id;
     private LocalDate date = LocalDate.now();
     private String text = "";
+    private int[] gedobbelt;
 
     public Spel(int id) {
         this.id = id;
@@ -31,17 +29,31 @@ public class Spel {
         bord.addSpeler(speler3);
     }
 
-    public void doeZet() {
+    public void zet(KeuzeBevestigd keuzeBevestigd) {
         if (aanBeurd == 0) {
-            text = speler1.stap(dobbelsteen.dobbelenMet2(), true, 6, true);
+            speler1.doeKeuzes(keuzeBevestigd, gedobbelt);
         } else if (aanBeurd == 1) {
-            text = speler2.stap(dobbelsteen.dobbelenMet2(), false, 0, false);
+            speler2.doeKeuzes(keuzeBevestigd, gedobbelt);
         } else if (aanBeurd == 2) {
-            text = speler3.stap(dobbelsteen.dobbelenMet2(), random.nextBoolean(), random.nextInt(7), random.nextBoolean());
+            speler3.doeKeuzes(keuzeBevestigd, gedobbelt);
             aanBeurd = -1;
         }
         aanBeurd += 1;
         date = LocalDate.now();
+    }
+
+    public KeuzesData keuzes() {
+        gedobbelt = dobbelsteen.dobbelenMet2();
+        KeuzesData keuzesData = null;
+        if (aanBeurd == 0) {
+            keuzesData = speler1.keuzes(gedobbelt);
+        } else if (aanBeurd == 1) {
+            keuzesData = speler2.keuzes(gedobbelt);
+        } else if (aanBeurd == 2) {
+            keuzesData = speler3.keuzes(gedobbelt);
+        }
+        date = LocalDate.now();
+        return keuzesData;
     }
 
     public Data getData() {

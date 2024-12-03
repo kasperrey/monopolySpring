@@ -7,13 +7,19 @@
 </head>
 <body>
     <button onclick="load()" id="volgende" style="position: absolute; top: 890px">volgende stap</button>
-    <img src="images/monopoly_bord.png" style="position: absolute; left: 0px; top: 0px" alt="bord">
-    <img src="images/pionnen/kat.png" alt="kat" id="kat" style="position: absolute; left: 0px; top: 717px">
-    <img src="images/pionnen/hoed.png" alt="hoed" id="hoed" style="position: absolute; left: 0px; top: 717px">
-    <img src="images/pionnen/eend.png" alt="hoed" id="eend" style="position: absolute; left: 0px; top: 717px">
-    <canvas width="1000" height="1000" id="canvas" style="position:absolute;z-index:3;pointer-events:none;"></canvas>
-    <div id="chartContainer" style="position: absolute; left: 850px; height: 100%; width: 50%;"></div>
+    <button onclick="buttonKlik(1)" id="cansel" style="position: absolute; left: 400px; top: 1000px">cansel</button>
+    <button onclick="buttonKlik(2)" id="ok" style="position: absolute; left: 450px; top: 1000px">ok</button>
+    <button onclick="verkoop()" id="verkoop" style="position: absolute; left: 450px; top: 9950px">verkoop</button>
+    <input id="verkoopInput" style="position: absolute; left: 460px; top: 9950px">
+    <img src="images/monopoly_bord.png" style="position: absolute; left: 0; top: 0" alt="bord">
+    <img src="images/pionnen/kat.png" alt="kat" id="kat" style="position: absolute; left: 0; top: 717px">
+    <img src="images/pionnen/hoed.png" alt="hoed" id="hoed" style="position: absolute; left: 0; top: 717px">
+    <img src="images/pionnen/eend.png" alt="hoed" id="eend" style="position: absolute; left: 0; top: 717px">
+    <img src="" alt="" id="imgKaart" style="position: absolute; left: 120px; top: 855px">
+    <canvas width="1000" height="1000" id="canvas" style="position: absolute; z-index: 3; pointer-events: none"></canvas>
+    <div id="chartContainer" style="position: absolute; left: 850px; height: 100%; width: 50%"></div>
     <div id="textKansFons" style="position: absolute; left: 120px; top: 860px; width: 600px; font: 15px Arial"></div>
+    <div id="inGevangenis" style="position: absolute; left: 120px; top: 860px; width: 600px; font: 15px Arial"></div>
     <script>
         const button = document.getElementById("volgende");
         const kat = document.getElementById("kat");
@@ -21,11 +27,23 @@
         const eend = document.getElementById("eend");
         const textKansFons = document.getElementById("textKansFons");
         const canvasTekenen = document.getElementById("canvas").getContext("2d");
+        const imgKaart = document.getElementById("imgKaart");
+        const inGevangenisTekst = document.getElementById("inGevangenis");
+        let buttonClicked = 0;
         canvasTekenen.font = "30px Arial"
         var geldSpeler1 = [1500];
         var geldSpeler2 = [1500];
         var geldSpeler3 = [1500];
+        var posSpeler1 = 0;
+        var posSpeler2 = 0;
+        var posSpeler3 = 0;
         var spelId = 0;
+
+        var keuzeBevestigd = undefined;
+
+        fetch("/0/data")
+            .then(response => response.json())
+            .then(json => spelId = json.id);
         maakGrafiek(geldSpeler1, geldSpeler2, geldSpeler3)
 
         function maakGrafiek(lijstGeld1, lijstGeld2, lijstGeld3) {
@@ -80,22 +98,23 @@
             chart.render();
         }
 
-        function load() {
-            button.disabled = true;
-            fetch('/'+spelId+'/data')
-                .then(response => response.json())
-                .then(setPlace)
-                .then(json => button.disabled = false);
+        function buttonKlik(b) {
+            buttonClicked = b;
+            console.log(b);
         }
 
         function setPlace(json) {
+            console.log(json);
+            posSpeler1 = json.posSpeler1;
+            posSpeler2 = json.posSpeler2;
+            posSpeler3 = json.posSpeler3;
             spelId = json.id;
             geldSpeler1.push(json.geldSpeler1);
             geldSpeler2.push(json.geldSpeler2);
             geldSpeler3.push(json.geldSpeler3);
-            pos(kat, json.posSpeler1);
-            pos(hoed, json.posSpeler2);
-            pos(eend, json.posSpeler3);
+            pos(kat, posSpeler1);
+            pos(hoed, posSpeler2);
+            pos(eend, posSpeler3);
             canvasTekenen.clearRect(0, 0, 1000, 1000);
             maakGrafiek(geldSpeler1, geldSpeler2, geldSpeler3);
             canvasTekenen.fillStyle = "#fe00cc";
@@ -108,6 +127,86 @@
             huisjes(json.huisjesSpeler2);
             huisjes(json.huisjesSpeler3);
             textKansFons.innerText = json.textKansFons;
+        }
+
+        function getKaart(p) {
+            imgKaart.src = "images/kaarten/"+p+".png";
+        }
+
+        function waitForButtonClick(ids) {
+            return new Promise((resolve) => {
+                for (let id of ids) {
+                    const button = document.getElementById(id);
+                    button.addEventListener('click', function() {
+                        resolve();  // When the button is clicked, resolve the Promise
+                    });
+                }
+            });
+        }
+
+        async function keuzes(keuzesData) {
+            button.disabled = false
+            keuzeBevestigd = new KeuzesBevestigd();
+            textKansFons.innerText = keuzesData.textKans;
+            for (let p in keuzesData.koopKeuzes) {
+                getKaart(keuzesData.koopKeuzes[p])
+                await waitForButtonClick(["ok", "cansel"]);
+                if (buttonClicked === 2) {
+                    keuzeBevestigd.gekocht.push(keuzesData.koopKeuzes[p]);
+                }
+                imgKaart.src = "";
+                buttonClicked = 0
+            }
+            if (keuzesData.inGevangenis) {
+                inGevangenisTekst.innerText = "Jammer, je zit in de gevangenis";
+                if (keuzesData.magVrij) {
+                    inGevangenisTekst.innerText += "\nMaar je hebt een kaart waardoor je gratis uit de gevangenis kan. Wil je deze gebruiken?";
+                    await waitForButtonClick(["ok", "cansel"]);
+                    console.log(buttonClicked);
+                    if (buttonClicked === 2) {
+                        keuzeBevestigd.gebruikVrij = true;
+                        inGevangenisTekst.innerText = "";
+                    } else {
+                        inGevangenisTekst.innerText = "Jammer, je zit in de gevangenis";
+                    }
+                }
+                if (!keuzeBevestigd.gebruikVrij) {
+                    inGevangenisTekst.innerText += "\nMaar je kan je vrijkopen voor <div style=\"transform: rotate(-180deg);display: inline-block;\">&#x20a9;</div>50. Wil je dit doen?";
+                    await waitForButtonClick(["ok", "cansel"]);
+                    console.log(buttonClicked);
+                    if (buttonClicked === 2) {
+                        keuzeBevestigd.koopVrij = true;
+                        inGevangenisTekst.innerText = "";
+                    } else {
+                        inGevangenisTekst.innerText = "Jammer, je zit in de gevangenis";
+                    }
+                }
+                if (!keuzeBevestigd.gebruikVrij && !keuzeBevestigd.koopVrij) {
+                    inGevangenisTekst.innerText += "\nMaar je kan je vrij dobbelen. Wil je dit doen?";
+                    await waitForButtonClick(["ok", "cansel"]);
+                    console.log(buttonClicked);
+                    if (buttonClicked === 2) {
+                        keuzeBevestigd.gooiDubbel = true;
+                        inGevangenisTekst.innerText = "";
+                    } else {
+                        inGevangenisTekst.innerText = "Jammer, je zit in de gevangenis";
+                    }
+                }
+            }
+            if (keuzesData.textKans) {
+                console.log(keuzesData.textKans);
+                textKansFons.innerText = keuzesData.textKans;
+                await  waitForButtonClick(["ok", "cansel"]);
+            }
+            console.log(keuzeBevestigd);
+            fetch(spelId+"/zet", {
+                method: "POST",
+                body: JSON.stringify(keuzeBevestigd),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }).then(response => response.json())
+                .then(json => setPlace(json));
         }
 
         function pos(figuur, pos) {
@@ -179,6 +278,45 @@
                 }
                 canvasTekenen.fillText(hoeveel, x, y)
             }
+        }
+
+        function load() {
+            button.disabled = true;
+            fetch('/'+spelId+'/keuzes')
+                .then(response => response.json())
+                .then(json => keuzes(Object.assign(new KeuzesData, json)));
+        }
+
+
+        class KeuzesData {
+            koopKeuzes;
+            inGevangenis;
+            magVrij;
+            verkopen;
+            posSpeler;
+            geld;
+            textKans;
+
+            constructor(koopKeuzes, inGevangenis, magVrij, verkopen, posSpeler, geld, textKans) {
+                this.koopKeuzes = koopKeuzes;
+                this.inGevangenis = inGevangenis;
+                this.magVrij = magVrij;
+                this.verkopen = verkopen;
+                this.posSpeler = posSpeler;
+                this.geld = geld;
+                this.textKans = textKans;
+            }
+        }
+
+
+        class KeuzesBevestigd {
+            gekocht = [];
+            huisjesGekocht = [];
+            huisjesVerkocht = [];
+            gebruikVrij = false;
+            koopVrij = false;
+            verkocht = [];
+            gooiDubbel = false;
         }
     </script>
 </body>

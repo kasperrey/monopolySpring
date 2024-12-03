@@ -303,16 +303,158 @@ public class Bord {
         return 0;
     }
 
-    public String kansEnFons(Speler speler) {
-        if (posKans.contains(speler.getPos())) {
+    public String kansEnFons(Speler speler, int pos) {
+        if (posKans.contains(pos)) {
             KansKaart kaart = kansKaarten.getRandomKansKaart();
             kaart.voerUit(speler);
             return kaart.getText();
-        } else if (posFons.contains(speler.getPos())) {
+        } else if (posFons.contains(pos)) {
             FonsKaart kaart = fonsKaarten.getRandomFonsKaart();
             kaart.voerUit(speler);
             return kaart.getText();
         }
         return "";
+    }
+
+    public int verkoopOpPos(ArrayList<Integer> possen, Speler speler) {
+        int krijgen = 0;
+        for (int i = 0; i < kaarten.size(); i++) {
+            Kaart kaart = kaarten.get(i);
+            if (kaart.bezitter().equals(Optional.of(speler))) {
+                for (int pos: possen) {
+                    if (pos == kaart.pos()) {
+                        kaarten.set(i, kaart.setBezet(Optional.empty()));
+                        krijgen += kaart.prijs()/2;
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < specialeKaarten.size(); i++) {
+            SpecialeKaart specialeKaart = specialeKaarten.get(i);
+            if (specialeKaart.bezitter().equals(Optional.of(speler))) {
+                for (int pos: possen) {
+                    if (pos == specialeKaart.pos()) {
+                        specialeKaarten.set(i, specialeKaart.setBezet(Optional.empty()));
+                        krijgen += specialeKaart.prijs()/2;
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < treinKaarten.size(); i++) {
+            TreinKaart treinKaart = treinKaarten.get(i);
+            if (treinKaart.bezitter().equals(Optional.of(speler))) {
+                for (int pos: possen) {
+                    if (pos == treinKaart.pos()) {
+                        treinKaarten.set(i, treinKaart.setBezet(Optional.empty()));
+                        krijgen += treinKaart.prijs()/2;
+                    }
+                }
+            }
+        }
+        return krijgen;
+    }
+
+    public int verkoopHuisjesOpPos(ArrayList<Integer[]> possen, Speler speler) {
+        int krijgen = 0;
+        for (int i = 0; i < kaarten.size(); i++) {
+            Kaart kaart = kaarten.get(i);
+            if (kaart.bezitter().equals(Optional.of(speler))) {
+                for (Integer[] huisjes: possen) {
+                    if (huisjes[0] == kaart.pos()) {
+                        kaarten.set(i, kaart.setHuisjes(kaart.huisjes()-huisjes[1]));
+                        krijgen += (kaart.bouwPrijs()/2)*huisjes[1];
+                    }
+                }
+            }
+        }
+        return krijgen;
+    }
+
+    public int koopOpPos(ArrayList<Integer> possen, Speler speler) {
+        int betalen = 0;
+        for (int i = 0; i < kaarten.size(); i++) {
+            Kaart kaart = kaarten.get(i);
+            for (int pos: possen) {
+                if (pos == kaart.pos()) {
+                    kaarten.set(i, kaart.setBezet(Optional.of(speler)));
+                    betalen += kaart.prijs();
+                }
+            }
+        }
+        for (int i = 0; i < specialeKaarten.size(); i++) {
+            SpecialeKaart specialeKaart = specialeKaarten.get(i);
+            for (int pos: possen) {
+                if (pos == specialeKaart.pos()) {
+                    specialeKaarten.set(i, specialeKaart.setBezet(Optional.of(speler)));
+                    betalen += specialeKaart.prijs();
+                }
+            }
+        }
+        for (int i = 0; i < treinKaarten.size(); i++) {
+            TreinKaart treinKaart = treinKaarten.get(i);
+            for (int pos: possen) {
+                if (pos == treinKaart.pos()) {
+                    treinKaarten.set(i, treinKaart.setBezet(Optional.of(speler)));
+                    betalen += treinKaart.prijs();
+                }
+            }
+        }
+        return betalen;
+    }
+
+    public int koopHuisjesOpPos(ArrayList<Integer[]> possen, Speler speler) {
+        int betalen = 0;
+        for (int i = 0; i < kaarten.size(); i++) {
+            Kaart kaart = kaarten.get(i);
+            if (kaart.bezitter().equals(Optional.of(speler))) {
+                for (Integer[] huisjes: possen) {
+                    if (huisjes[0] == kaart.pos()) {
+                        kaarten.set(i, kaart.setHuisjes(kaart.huisjes()+huisjes[1]));
+                        betalen += kaart.bouwPrijs()*huisjes[1];
+                    }
+                }
+            }
+        }
+        return betalen;
+    }
+
+    public int betaalHuur(int pos, int stappen) {
+        Optional<Kaart> kaartOptional = getKaart(pos);
+        Optional<TreinKaart> treinKaartOptional = getTreinKaart(pos);
+        Optional<SpecialeKaart> specialeKaartOptional = getSpecialeKaart(pos);
+        if (kaartOptional.isPresent()) {
+            Kaart kaart = kaartOptional.get();
+            if (kaart.bezitter().isPresent()) {
+                Speler bezitter = kaart.bezitter().get();
+                if (heeftSpelerStraat(bezitter, kaart.kleur())) {
+                    bezitter.addGeld(kaart.huur()*2);
+                    return kaart.huur()*2;
+                } else {
+                    bezitter.addGeld(kaart.huur());
+                    return kaart.huur();
+                }
+            }
+        } else if (treinKaartOptional.isPresent()) {
+            TreinKaart treinKaart = treinKaartOptional.get();
+            if (treinKaart.bezitter().isPresent()) {
+                Speler bezitter = treinKaart.bezitter().get();
+                int aantal = (int) treinKaarten.stream().filter(treinKaart1 -> treinKaart1.bezitter().isPresent()).filter(treinKaart1 -> treinKaart1.bezitter().get().equals(bezitter)).count();
+                bezitter.addGeld(treinKaart.huures()[aantal-1]);
+                return treinKaart.huures()[aantal-1];
+            }
+        } else if (specialeKaartOptional.isPresent()) {
+            SpecialeKaart specialeKaart = specialeKaartOptional.get();
+            if (specialeKaart.bezitter().isPresent()) {
+                Speler bezitter = specialeKaart.bezitter().get();
+                if (allebij()) {
+                    bezitter.addGeld(specialeKaart.malers()[1]*stappen);
+                    return specialeKaart.malers()[1]*stappen;
+                } else {
+                    bezitter.addGeld(specialeKaart.maal()*stappen);
+                    return specialeKaart.maal()*stappen;
+                }
+            }
+        }
+        return 0;
     }
 }

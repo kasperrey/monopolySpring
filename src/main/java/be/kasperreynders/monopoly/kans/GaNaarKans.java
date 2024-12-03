@@ -25,16 +25,21 @@ public class GaNaarKans implements KansKaart {
     @Override
     public void voerUit(Speler speler) {
         if (!type.equals("terug")) {
-            int dicht = dichtsBij(speler.getPos());
-            if ((dicht-speler.getPos()) < 0) {
+            if (!type.equals("go")) {
+                int dicht = dichtsBij(speler.getPos());
+                if ((dicht - speler.getPos()) < 0) {
+                    speler.addGeld(200);
+                }
+                speler.setPos(dicht);
+                switch (type) {
+                    case "treinDicht" -> treinDichtKaart(dicht, speler);
+                    case "speciaal" -> specialeKaart(dicht, speler);
+                    case "kaart" -> kaart(dicht, speler);
+                    case "trein" -> treinKaart(speler, dicht);
+                }
+            } else {
                 speler.addGeld(200);
-            }
-            speler.setPos(dicht);
-            switch (type) {
-                case "treinDicht" -> treinDichtKaart(dicht, speler);
-                case "speciaal" -> specialeKaart(dicht, speler);
-                case "kaart" -> kaart(dicht, speler);
-                case "trein" -> treinKaart(speler, dicht);
+                speler.setPos(0);
             }
         } else {
             int pos = speler.getPos()-terug;
@@ -51,7 +56,7 @@ public class GaNaarKans implements KansKaart {
     }
 
     private int dichtsBij(int pos) {
-        int dichts = plekken.get(0);
+        int dichts = plekken.getFirst();
         for (int p: plekken) {
             if (Math.abs(p-pos) < Math.abs(dichts-pos)) {
                 dichts = p;
@@ -84,6 +89,16 @@ public class GaNaarKans implements KansKaart {
         }
     }
 
+    private void treinKaart(Speler speler, int dicht) {
+        Optional<TreinKaart> kaartOptional = bord.getTreinKaart(dicht);
+        if (kaartOptional.isPresent()) {
+            TreinKaart kaart = kaartOptional.get();
+            if (kaart.bezitter().isPresent()) {
+                speler.betalen(kaart.huur(), kaart.bezitter().get());
+            }
+        }
+    }
+
     private void specialeKaart(int dicht, Speler speler) {
         Optional<SpecialeKaart> kaartOptional = bord.getSpecialeKaart(dicht);
         if (kaartOptional.isPresent()) {
@@ -93,16 +108,6 @@ public class GaNaarKans implements KansKaart {
                 speler.betalen(10*(gedobbeld[0]+gedobbeld[1]), kaart.bezitter().get());
             } else {
                 speler.koopKaart(dicht, kaart.prijs(), type);
-            }
-        }
-    }
-
-    private void treinKaart(Speler speler, int dicht) {
-        Optional<TreinKaart> kaartOptional = bord.getTreinKaart(dicht);
-        if (kaartOptional.isPresent()) {
-            TreinKaart kaart = kaartOptional.get();
-            if (kaart.bezitter().isPresent()) {
-                speler.betalen(kaart.huur(), kaart.bezitter().get());
             }
         }
     }

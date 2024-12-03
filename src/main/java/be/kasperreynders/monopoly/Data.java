@@ -1,7 +1,6 @@
 package be.kasperreynders.monopoly;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public record Data(int id, String textKansFons,
                    int posSpeler1, ArrayList<Integer> kaartBezittenSpeler1, int geldSpeler1, ArrayList<int[]> huisjesSpeler1,
